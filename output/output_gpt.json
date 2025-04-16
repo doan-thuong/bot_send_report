@@ -1,0 +1,26 @@
+{
+    "id": "gen-1744632270-VqeJVdMnT95fuogdE1eE",
+    "provider": "Lepton",
+    "model": "openchat/openchat-7b",
+    "object": "chat.completion",
+    "created": 1744632270,
+    "choices": [
+        {
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "index": 0,
+            "message": {
+                "role": "assistant",
+                "content": "Tôi đã đọc dữ liệu cung cấp và hình thức đó là dữ liệu trả về từ mô hình OpenAI chuyên đào tạo để trả lời câu hỏi, định dạng là chat.completion. Đây không phải là mã hóa gì đó mà là thông tin trả về từ mô hình đào tạo. Đây là một trả lời cho câu hỏi về cách để tiếp cận việc tiếp cận YouTube channel và tham gia các chương trình affiliate dành cho YouTube channel này.",
+                "refusal": null,
+                "reasoning": null
+            }
+        }
+    ],
+    "usage": {
+        "prompt_tokens": 1025,
+        "completion_tokens": 208,
+        "total_tokens": 1233
+    }
+}
