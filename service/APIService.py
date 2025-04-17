@@ -1,5 +1,5 @@
 import requests
-import JsonHandling
+import service.HandlingJson as HandlingJson
 import KeyHandling
 from datetime import datetime, timedelta
 import pytz
@@ -113,6 +113,6 @@ def retrieve_messages(channel_id):
     
     if data:
         file_path = "output/output.json"
-        JsonHandling.write_file_json(file_path, data, False)
+        HandlingJson.write_file_json(file_path, data, False)
 
 # def convert_json_to_response(response):

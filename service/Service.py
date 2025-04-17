@@ -3,6 +3,7 @@ import glob
 import gspread
 import yagmail
 from datetime import datetime, timedelta
+import service.HandlingJson as HandlingJson
 
 from oauth2client.service_account import ServiceAccountCredentials
 from selenium import webdriver
@@ -15,7 +16,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from cryptography.fernet import Fernet
 
-import JsonHandling
 
 LINK_HEAD = "E:/project/security/"
 
@@ -40,7 +40,7 @@ def convert_time(time, time_offset):
   return final_time
 
 def send_noti(content_mail):
-  config_mail = JsonHandling.read_json("config/config-mail.json")
+  config_mail = HandlingJson.read_json("config/config-mail.json")
 
   mail_from = config_mail["mail_from"]
   mail_to = config_mail["mail_to"]
@@ -54,7 +54,7 @@ def send_noti(content_mail):
   )
 
 def get_data_from_gg_sheet(id_sheet, name_tab_sheet):
-  config = JsonHandling.read_json("config/config-mail.json")
+  config = HandlingJson.read_json("config/config-mail.json")
   scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
   creds = ServiceAccountCredentials.from_json_keyfile_name(LINK_HEAD + "config/key-gg-config.json", scope)
   client = gspread.authorize(creds)
@@ -83,7 +83,7 @@ def get_data_from_gg_sheet(id_sheet, name_tab_sheet):
 def convert_to_messange():
   name_tab_sheet = str(datetime.today().strftime('%Y-%m-%d'))
   title_mess = f"Test report {name_tab_sheet}:\n"
-  file_config = JsonHandling.read_json("config/config.json")
+  file_config = HandlingJson.read_json("config/config.json")
   id_pm = file_config["id_pm"]
 
   links_to_sheet = file_config["sheet_url"]
@@ -137,7 +137,7 @@ def login_google(driver, email, password):
       print("Đăng nhập thành công.")
 
 def get_image():
-  config = JsonHandling.read_json("config/config.json")
+  config = HandlingJson.read_json("config/config.json")
 
   email = config["email"]
   password_encode = config["password"]
