@@ -1,6 +1,6 @@
 import requests
 import service.HandlingJson as HandlingJson
-import KeyHandling
+from . import KeyHandling
 from datetime import datetime, timedelta
 import pytz
 from dateutil import parser
