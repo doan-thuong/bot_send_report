@@ -54,7 +54,7 @@ def get_data_to_forum_channel(channel_id, headers):
 
     return list_id
 
-def handle_channel_id(list_channel_id, headers):
+def handle_data_channel(list_channel_id, headers):
     utc_now = datetime.now(pytz.utc)
     start_of_day = utc_now.replace(hour=0, minute=0, second=0, microsecond=0)
     end_of_day = start_of_day + timedelta(days=1)
@@ -73,16 +73,41 @@ def handle_channel_id(list_channel_id, headers):
 
             for msg in messages:
                 msg_time = parser.isoparse(msg['timestamp'])
+
                 if start_of_day <= msg_time < end_of_day:
                     get_data = get_json_data(msg)
+
+                    if not get_data:
+                        break
+
                     data.append(get_data)
                 elif msg_time < start_of_day:
                     break
         else:
             print(f"Lỗi: {response.status_code}, {response.text}")
+            
             return
         
     return data
+
+def handle_channel_id(check_type, channel_id, headers):
+    list_channel_id = []
+    
+    match check_type:
+        case -1:
+            print("Channel type error!")
+            return
+        case 0:
+            list_channel_id.append(channel_id)
+        case 15:
+            list_channel_id = get_data_to_forum_channel(channel_id, headers)
+            if not list_channel_id:
+                print("List channel id null")
+                return
+        case _:
+            print("Type channel nằm ngoài vùng cần get data")
+    
+    return list_channel_id
 
 def retrieve_messages(channel_id):
     bot_token = KeyHandling.read_file_key("security/bot.key")
@@ -91,25 +116,15 @@ def retrieve_messages(channel_id):
         "Authorization": bot_token
     }
 
-    list_channel_id = []
-
     check_type = check_type_channel(channel_id, headers)
 
-    if check_type == -1:
-        print("Channel type error!")
-        return
-    elif check_type == 15:
-        list_channel_id = get_data_to_forum_channel(channel_id, headers)
-        if not list_channel_id:
-            print("List channel id null")
-            return
-    elif check_type == 0:
-        list_channel_id.append(channel_id)
-    else:
-        print("Type channel nằm ngoài vùng cần get data")
+    list_channel_id = handle_channel_id(check_type, channel_id, headers)
+
+    if not list_channel_id:
+        print("List channel id null")
         return
 
-    data = handle_channel_id(list_channel_id, headers)
+    data = handle_data_channel(list_channel_id, headers)
     
     if data:
         file_path = "output/output.json"
