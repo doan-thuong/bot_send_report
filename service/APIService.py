@@ -52,6 +52,7 @@ def get_data_to_forum_channel(channel_id, headers):
     list_id = []
 
     endpoints = [
+        f"https://discord.com/api/v10/channels/{channel_id}/threads/search?archived=false",
         f"https://discord.com/api/v10/channels/{channel_id}/threads/archived/public",
         f"https://discord.com/api/v10/channels/{channel_id}/users/@me/threads/archived/private"
     ]
