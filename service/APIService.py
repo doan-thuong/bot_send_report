@@ -9,11 +9,22 @@ from dateutil import parser
 def get_json_data(json_data):
     try:
         author = json_data["author"]
+
+        attachments = json_data["attachments"]
+
+        get_attachments = []
+
+        if attachments:
+            for attachment in attachments:
+                get_attachments.append(attachment["content_type"])
+
         getData = {
             "user": {
                 "id": author["id"],
                 "username": author["username"]
             },
+            "timestamp": json_data["timestamp"],
+            "attachments": get_attachments,
             "content": json_data["content"]
         }
         return getData
@@ -38,19 +49,26 @@ def check_type_channel(channel_id, headers):
     return -1
 
 def get_data_to_forum_channel(channel_id, headers):
-    url = f"https://discord.com/api/v10/channels/{channel_id}/threads"
-    response = requests.get(url, headers=headers)
-
     list_id = []
 
-    if response.status_code == 200:
-        get_thread_json = response.json()
-        for json in get_thread_json:
-            thread_id = json.get("id")
-            if thread_id:
-                list_id.append(thread_id)
-    else:
-        print(f"Lỗi: {response.status_code}, {response.text}")
+    endpoints = [
+        f"https://discord.com/api/v10/channels/{channel_id}/threads/archived/public",
+        f"https://discord.com/api/v10/channels/{channel_id}/users/@me/threads/archived/private"
+    ]
+
+    for url in endpoints:
+        response = requests.get(url, headers=headers)
+
+        if response.status_code == 200:
+            res_json = response.json()
+            threads = res_json.get("threads", [])
+
+            for thread in threads:
+                thread_id = thread.get("id")
+                if thread_id:
+                    list_id.append(thread_id)
+        else:
+            print(f"❌ Lỗi khi gọi {url}: {response.status_code}, {response.text}")
 
     return list_id
 
@@ -102,7 +120,7 @@ def handle_channel_id(check_type, channel_id, headers):
         case 15:
             list_channel_id = get_data_to_forum_channel(channel_id, headers)
             if not list_channel_id:
-                print("List channel id null")
+                print("List channel id in forum null")
                 return
         case _:
             print("Type channel nằm ngoài vùng cần get data")
