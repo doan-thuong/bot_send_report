@@ -35,6 +35,19 @@ def get_json_data(json_data):
     
     return None
 
+def get_name_channel(id_channel, headers):
+    url = f"https://discord.com/api/v10/channels/{id_channel}"
+    response_channel = requests.get(url, headers=headers)
+
+    channel_name = None
+    if response_channel.status_code == 200:
+        channel_info = response_channel.json()
+        channel_name = channel_info["name"]
+    else:
+        print(f"Lỗi khi lấy thông tin kênh: {response_channel.status_code}, {response_channel.text}")
+
+    return channel_name
+
 def check_type_channel(channel_id, headers):
     url = f"https://discord.com/api/v9/channels/{channel_id}"
     response = requests.get(url, headers=headers)
@@ -78,12 +91,14 @@ def handle_data_channel(list_channel_id, headers):
     start_of_day = utc_now.replace(hour=0, minute=0, second=0, microsecond=0)
     end_of_day = start_of_day + timedelta(days=1)
 
-    url_base = f"https://discord.com/api/v10/channels/"
+    url_base = "https://discord.com/api/v10/channels/"
 
     data = []
 
     for get_id in list_channel_id:
         url = url_base + get_id + "/messages"
+        name_channel = get_name_channel(get_id, headers)
+        get_data = None
 
         response = requests.get(url, headers=headers)
         
@@ -94,14 +109,20 @@ def handle_data_channel(list_channel_id, headers):
                 msg_time = parser.isoparse(msg['timestamp'])
 
                 if start_of_day <= msg_time < end_of_day:
-                    get_data = get_json_data(msg)
+                    get_data_json = get_json_data(msg)
 
-                    if not get_data:
+                    if not get_data_json:
                         break
 
-                    data.append(get_data)
+                    get_data = {
+                        "name_channel": name_channel,
+                        "data_channel": get_data_json
+                    }
                 elif msg_time < start_of_day:
                     break
+            
+            if get_data:
+                data.append(get_data)
         else:
             print(f"Lỗi: {response.status_code}, {response.text}")
             
