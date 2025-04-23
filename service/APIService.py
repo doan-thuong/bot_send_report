@@ -86,48 +86,53 @@ def get_data_to_forum_channel(channel_id, headers):
 
     return list_id
 
-def handle_data_channel(list_channel_id, headers):
+def get_messages_in_day(channel_id, headers):
     utc_now = datetime.now(pytz.utc)
     start_of_day = utc_now.replace(hour=0, minute=0, second=0, microsecond=0)
     end_of_day = start_of_day + timedelta(days=1)
+    
+    url = f"https://discord.com/api/v10/channels/{channel_id}/messages"
+    response = requests.get(url, headers=headers)
+    
+    if response.status_code != 200:
+        print(f"Lỗi khi lấy tin nhắn từ kênh {channel_id}: {response.status_code}, {response.text}")
+        return None
+    
+    messages = response.json()
+    filtered_messages = []
+    
+    for msg in messages:
+        msg_time = parser.isoparse(msg['timestamp'])
+        if start_of_day <= msg_time < end_of_day:
+            get_data_json = get_json_data(msg)
+            if get_data_json:
+                filtered_messages.append(get_data_json)
+        elif msg_time < start_of_day:
+            break
+    
+    return filtered_messages
 
-    url_base = "https://discord.com/api/v10/channels/"
+def process_channel_data(channel_id, headers):
+    name_channel = get_name_channel(channel_id, headers)
+    if not name_channel:
+        print(f"Không thể lấy tên kênh cho ID {channel_id}")
+        return None
+    
+    messages = get_messages_in_day(channel_id, headers)
+    if messages is None or not messages:
+        return None
+    
+    return {
+        "name_channel": name_channel,
+        "data_channel": messages
+    }
 
+def handle_data_channel(list_channel_id, headers):
     data = []
-
-    for get_id in list_channel_id:
-        url = url_base + get_id + "/messages"
-        name_channel = get_name_channel(get_id, headers)
-        get_data = None
-
-        response = requests.get(url, headers=headers)
-        
-        if response.status_code == 200:
-            messages = response.json()
-
-            for msg in messages:
-                msg_time = parser.isoparse(msg['timestamp'])
-
-                if start_of_day <= msg_time < end_of_day:
-                    get_data_json = get_json_data(msg)
-
-                    if not get_data_json:
-                        break
-
-                    get_data = {
-                        "name_channel": name_channel,
-                        "data_channel": get_data_json
-                    }
-                elif msg_time < start_of_day:
-                    break
-            
-            if get_data:
-                data.append(get_data)
-        else:
-            print(f"Lỗi: {response.status_code}, {response.text}")
-            
-            return
-        
+    for channel_id in list_channel_id:
+        channel_data = process_channel_data(channel_id, headers)
+        if channel_data:
+            data.append(channel_data)
     return data
 
 def handle_channel_id(check_type, channel_id, headers):
