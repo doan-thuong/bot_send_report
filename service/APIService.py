@@ -48,18 +48,25 @@ def get_name_channel(id_channel, headers):
 
     return channel_name
 
-def check_type_channel(channel_id, headers):
+def check_data_channel(channel_id, headers):
     url = f"https://discord.com/api/v9/channels/{channel_id}"
     response = requests.get(url, headers=headers)
 
     if response.status_code == 200:
         channel_data = response.json()
-        channel_type = channel_data.get("type")
-        return channel_type
+        
+        channel_type = channel_data["type"]
+        return {
+            "type" : channel_type,
+            "name" : channel_data["name"]
+        }
     else:
         print(f"Lỗi: {response.status_code}, {response.text}")
     
-    return -1
+    return {
+        "type" : -1,
+        "name" : None
+    }
 
 def get_data_to_forum_channel(channel_id, headers):
     list_id = []
@@ -139,9 +146,6 @@ def handle_channel_id(check_type, channel_id, headers):
     list_channel_id = []
     
     match check_type:
-        case -1:
-            print("Channel type error!")
-            return
         case 0:
             list_channel_id.append(channel_id)
         case 15:
@@ -161,7 +165,13 @@ def retrieve_messages(channel_id):
         "Authorization": bot_token
     }
 
-    check_type = check_type_channel(channel_id, headers)
+    data_check = check_data_channel(channel_id, headers)
+
+    check_type = data_check["type"]
+
+    if check_type == -1:
+        print("Channel type error!")
+        return
 
     list_channel_id = handle_channel_id(check_type, channel_id, headers)
 
@@ -169,7 +179,10 @@ def retrieve_messages(channel_id):
         print("List channel id null")
         return
 
-    data = handle_data_channel(list_channel_id, headers)
+    data = {
+        "name_channel" : data_check["name"],
+        "content_channel": handle_data_channel(list_channel_id, headers)
+    }
     
     if data:
         file_path = "output/output.json"
