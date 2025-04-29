@@ -179,10 +179,13 @@ def retrieve_messages(channel_id):
         print("List channel id null")
         return
 
-    data = {
-        "name_channel" : data_check["name"],
-        "content_channel": handle_data_channel(list_channel_id, headers)
-    }
+    if check_type != 15:
+        data = handle_data_channel(list_channel_id, headers)
+    else:
+        data = {
+            "name_channel" : data_check["name"],
+            "content_channel": handle_data_channel(list_channel_id, headers)
+        }
     
     if data:
         file_path = "output/output.json"
