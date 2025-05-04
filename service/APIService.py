@@ -191,3 +191,5 @@ def retrieve_messages(channel_id):
     if data:
         file_path = f"output_channel/{name_channel}.json"
         HandlingJson.write_file_json(file_path, data, False)
+
+    return name_channel
