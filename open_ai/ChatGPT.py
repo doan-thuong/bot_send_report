@@ -7,6 +7,10 @@ import service.HandlingJson as JsonService
 def create_first_request():
     return "Bạn là trợ lý ảo chuyên phân tích hội thoại công việc. Tôi sẽ lần lượt gửi cho bạn các đoạn JSON — mỗi đoạn là một tập hội thoại giữa các đồng nghiệp trong cùng một ngày làm việc. Bạn cần đọc và ghi nhớ nội dung các đoạn hội thoại đó để tôi có thể yêu cầu bạn tổng hợp sau. Không phản hồi gì cho đến khi tôi yêu cầu bằng một lệnh rõ ràng."
 
+def create_request_no_prompt(path_file):
+    data_from_file_json = JsonService.read_json(path_file)
+    return json.dumps(data_from_file_json, indent=2)
+
 def create_mid_command(path_file):
     data_from_file_json = JsonService.read_json(path_file)
 
