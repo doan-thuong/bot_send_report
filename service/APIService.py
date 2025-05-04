@@ -168,6 +168,7 @@ def retrieve_messages(channel_id):
     data_check = check_data_channel(channel_id, headers)
 
     check_type = data_check["type"]
+    name_channel = data_check["name"]
 
     if check_type == -1:
         print("Channel type error!")
@@ -183,12 +184,10 @@ def retrieve_messages(channel_id):
         data = handle_data_channel(list_channel_id, headers)
     else:
         data = {
-            "name_channel" : data_check["name"],
+            "name_channel" : name_channel,
             "content_channel": handle_data_channel(list_channel_id, headers)
         }
     
     if data:
-        file_path = "output/output.json"
+        file_path = f"output_channel/{name_channel}.json"
         HandlingJson.write_file_json(file_path, data, False)
-
-# def convert_json_to_response(response):
