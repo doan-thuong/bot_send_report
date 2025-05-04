@@ -5,13 +5,7 @@ import service.HandlingJson as JsonService
 
 
 def create_first_request():
-    prompt = f"""
-    Dưới đây gửi cho bạn nhiều chuỗi JSON chứa các đoạn hội thoại trao đổi công việc giữa các đồng nghiệp trong một ngày.
-    Tôi cần bạn đọc và hiểu nội dung để thực hiện các yêu cầu của tôi sau này.
-    Sau đây tôi sẽ gửi bạn nội dung bạn chỉ cần nhận thông tin và phân tích ngầm thôi không cần gửi lại phần phân tích ngay.
-    """
-
-    return prompt
+    return "Bạn là trợ lý ảo chuyên phân tích hội thoại công việc. Tôi sẽ lần lượt gửi cho bạn các đoạn JSON — mỗi đoạn là một tập hội thoại giữa các đồng nghiệp trong cùng một ngày làm việc. Bạn cần đọc và ghi nhớ nội dung các đoạn hội thoại đó để tôi có thể yêu cầu bạn tổng hợp sau. Không phản hồi gì cho đến khi tôi yêu cầu bằng một lệnh rõ ràng."
 
 def create_mid_command(path_file):
     data_from_file_json = JsonService.read_json(path_file)
@@ -19,16 +13,17 @@ def create_mid_command(path_file):
     file_name = os.path.basename(path_file)
     file_stem = os.path.splitext(file_name)[0]
 
-    prompt = f"""Đây là dữ liệu của file {file_stem} như sau: 
-    {json.dumps(data_from_file_json, indent=2)}"""
+    prompt = f"""Dữ liệu từ file “{file_stem}” (số đoạn: {len(data_from_file_json)}) như sau: 
+    {json.dumps(data_from_file_json, indent=2)}
+    Hãy đọc và lưu nội dung, đừng phản hồi."""
 
     return prompt
 
 def create_final_command():
-    prompt = f"""Dựa vào những gì tôi vừa cung cấp bạn hãy phân tích và viết lại **báo cáo công việc** của ngày hôm đó, 
-    dưới dạng **các gạch đầu dòng**, ngắn gọn, rõ ràng và đúng trọng tâm. 
-    Đồng thời có bạn có thể đưa ra dự đoán về tiến độ công việc có thể hoàn thành trong tuần hay không 
-    **Không bắt buộc, nếu đủ dữ liệu để dự đoán**"""
+    prompt = f"""Bây giờ bạn hãy tổng hợp **báo cáo công việc** của ngày hôm đó:
+    - Dạng gạch đầu dòng, ngắn gọn, rõ trọng tâm
+    - Kèm dự đoán tiến độ tuần (nếu dữ liệu cho phép)
+    “Không có dữ liệu dự đoán, cứ bỏ qua”"""
 
     return prompt
 
