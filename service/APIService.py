@@ -93,11 +93,15 @@ def get_data_to_forum_channel(channel_id, headers):
 
     return list_id
 
-def get_messages_in_day(channel_id, headers):
+def get_messages_in_day(channel_id, headers, isSpecial = False):
     utc_now = datetime.now(pytz.utc)
     start_of_day = utc_now.replace(hour=0, minute=0, second=0, microsecond=0)
     end_of_day = start_of_day + timedelta(days=1)
     
+    if isSpecial:
+        if utc_now.weekday() != 0:
+            return None
+
     url = f"https://discord.com/api/v10/channels/{channel_id}/messages"
     response = requests.get(url, headers=headers)
     
@@ -119,13 +123,13 @@ def get_messages_in_day(channel_id, headers):
     
     return filtered_messages
 
-def process_channel_data(channel_id, headers):
+def process_channel_data(channel_id, headers, isSpecial = False):
     name_channel = get_name_channel(channel_id, headers)
     if not name_channel:
         print(f"Không thể lấy tên kênh cho ID {channel_id}")
         return None
     
-    messages = get_messages_in_day(channel_id, headers)
+    messages = get_messages_in_day(channel_id, headers, isSpecial)
     if messages is None or not messages:
         return None
     
@@ -134,10 +138,10 @@ def process_channel_data(channel_id, headers):
         "data_channel": messages
     }
 
-def handle_data_channel(list_channel_id, headers):
+def handle_data_channel(list_channel_id, headers, isSpecial = False):
     data = []
     for channel_id in list_channel_id:
-        channel_data = process_channel_data(channel_id, headers)
+        channel_data = process_channel_data(channel_id, headers, isSpecial)
         if channel_data:
             data.append(channel_data)
     return data
@@ -158,7 +162,7 @@ def handle_channel_id(check_type, channel_id, headers):
     
     return list_channel_id
 
-def retrieve_messages(channel_id):
+def retrieve_messages(channel_id, isSpecial = False):
     bot_token = KeyHandling.read_file_key("security/bot.key")
     
     headers = {
@@ -181,14 +185,14 @@ def retrieve_messages(channel_id):
         return
 
     if check_type != 15:
-        data = handle_data_channel(list_channel_id, headers)
+        data = handle_data_channel(list_channel_id, headers, isSpecial)
     else:
         data = {
             "name_channel" : name_channel,
-            "content_channel": handle_data_channel(list_channel_id, headers)
+            "content_channel": handle_data_channel(list_channel_id, headers, isSpecial)
         }
     
-    if data:
+    if data or (not data and not isSpecial):
         file_path = f"output_channel/{name_channel}.json"
         HandlingJson.write_file_json(file_path, data, False)
 
