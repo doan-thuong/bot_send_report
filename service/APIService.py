@@ -19,7 +19,7 @@ def get_json_data(json_data):
                 get_attachments.append(attachment["content_type"])
 
         getData = {
-            "user": {
+            "sender": {
                 "id": author["id"],
                 "username": author["username"]
             },
