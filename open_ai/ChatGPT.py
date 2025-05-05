@@ -54,8 +54,13 @@ def request_gpt(prompt):
         json=data
     )
 
-    response_json = request_to_gpt.json()
-    JsonService.write_file_json("output/output_gpt.json", response_json, False)
+    if request_to_gpt.status_code == 200:
+        response_json = request_to_gpt.json()
+        JsonService.write_file_json("output/output_gpt.json", response_json, False)
 
-    response = response_json["choices"][0]["message"]["content"]
-    return response
+        response = response_json["choices"][0]["message"]["content"]
+        return response
+    else:
+        print(f"Lỗi HTTP: {request_to_gpt.status_code}")
+        print("Nội dung phản hồi:", request_to_gpt.text)
+        return None
