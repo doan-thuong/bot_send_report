@@ -5,10 +5,10 @@ import os
 LINK_HEAD = "E:/project/security/"
 
 def read_json(name_file, checkout = True):
-  if checkout:
+    if checkout:
         name_file_final = LINK_HEAD + name_file
-  with open(name_file_final, "r", encoding="utf-8") as file:
-    return json.load(file)
+    with open(name_file_final, "r", encoding="utf-8") as file:
+        return json.load(file)
 
 def write_file_json(file_path, data, checkout = True):
     if not data:
