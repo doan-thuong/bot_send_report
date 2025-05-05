@@ -12,7 +12,7 @@ def read_json(name_file, checkout = True):
 
 def write_file_json(file_path, data, checkout = True):
     if not data:
-        print("Data write null")
+        print(f"Data write null: {file_path}")
         return
     if not file_path:
         print("Path file null")
