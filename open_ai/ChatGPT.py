@@ -32,8 +32,7 @@ def create_final_command():
     return prompt
 
 def request_gpt(prompt):
-    with open("security/gpt.key", "r") as key_file:
-        api_key = key_file.read()
+    api_key = JsonService.read_json("security/gpt.key")
 
     headers = {
         "Authorization": f"Bearer {api_key}",
