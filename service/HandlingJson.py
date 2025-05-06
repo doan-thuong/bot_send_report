@@ -7,6 +7,9 @@ LINK_HEAD = "E:/project/security/"
 def read_json(name_file, checkout = True):
     if checkout:
         name_file_final = LINK_HEAD + name_file
+    else:
+        name_file_final = name_file
+    
     with open(name_file_final, "r", encoding="utf-8") as file:
         return json.load(file)
 
