@@ -18,13 +18,17 @@ def send_discord_message(recipient):
         "content": getMessage
     }
     
-    Service.get_image()
-    folder_name = "screenshots"
-    image_files = glob.glob(os.path.join(folder_name, "*.png"))
-
-    files = {f"file{i+1}": open(file_path, "rb") for i, file_path in enumerate(image_files)}
+    check_image:bool = Service.get_image()
     
-    response = requests.post(recipient, data=data, files=files)
+    if check_image:
+        folder_name = "screenshots"
+        image_files = glob.glob(os.path.join(folder_name, "*.png"))
+
+        files = {f"file{i+1}": open(file_path, "rb") for i, file_path in enumerate(image_files)}
+
+        response = requests.post(recipient, data=data, files=files)
+    else:
+        response = requests.post(recipient, data=data)
     
     if response.status_code in [200, 204]:
         print(f"Sent message to {recipient}")

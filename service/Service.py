@@ -144,6 +144,8 @@ def get_image():
   password = decrypt_password(password_encode)
   sheet_url = config["sheet_url"]
 
+  if not sheet_url:
+    return False
   
   chrome_options = Options()
   chrome_options.add_argument("--headless")
@@ -191,4 +193,4 @@ def get_image():
   driver.quit()
   print("Photo has been taken")
 
-  return screenshot
+  return True
