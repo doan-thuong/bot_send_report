@@ -14,9 +14,6 @@ def read_json(name_file, checkout = True):
         return json.load(file)
 
 def write_file_json(file_path, data, checkout = True):
-    if not data:
-        print(f"Data write null: {file_path}")
-        return
     if not file_path:
         print("Path file null")
         return
