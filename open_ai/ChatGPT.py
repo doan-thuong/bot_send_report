@@ -25,10 +25,12 @@ def create_mid_command(path_file):
     return prompt
 
 def create_final_command():
-    prompt = f"""Bây giờ bạn hãy tổng hợp **báo cáo công việc** của ngày hôm đó:
-    - Dạng gạch đầu dòng, ngắn gọn, rõ trọng tâm
-    - Kèm dự đoán tiến độ tuần (nếu dữ liệu cho phép)
-    “Không có dữ liệu dự đoán, cứ bỏ qua”"""
+    # prompt = f"""Bây giờ bạn hãy tổng hợp **báo cáo công việc** của ngày hôm đó:
+    # - Dạng gạch đầu dòng, ngắn gọn, rõ trọng tâm
+    # - Kèm dự đoán tiến độ tuần (nếu dữ liệu cho phép)
+    # “Không có dữ liệu dự đoán, cứ bỏ qua”"""
+
+    prompt = "Bây giờ hãy dừng lại và cho tôi biết bạn đã hiểu được những gì từ các tin nhắn trước của tôi. Không cần diễn giải lại yêu cầu, chỉ cần tóm tắt nội dung chính hoặc mô tả lại các ý tôi đã gửi theo cách bạn hiểu."
 
     return prompt
 
@@ -37,13 +39,13 @@ def request_gpt(prompt):
 
     headers = {
         "Authorization": f"Bearer {api_key}",
-        "HTTP-Referer": "https://localhost",
-        "X-Title": "Request GPT"
+        "Content-Type": "application/json",
     }
 
     data = {
-        "model": "openchat/openchat-7b",
+        "model": "deepseek/deepseek-chat-v3-0324:free",
         "messages": [
+            {"role": "system", "content": "Bạn là một nhà phân tích nội dung cuộc trò chuuyện, đồng thời là một người trợ lý cho nhân viên kiểm tra chất lượng sản phẩm và bạn cần trả lời ngắn gọn nhưng phải đủ ý."},
             {"role": "user", "content": prompt}
         ]
     }
@@ -54,13 +56,13 @@ def request_gpt(prompt):
         json=data
     )
 
-    if request_to_gpt.status_code == 200:
+    if "application/json" in request_to_gpt.headers.get("Content-Type", "") and request_to_gpt.text.strip() and request_to_gpt.status_code == 200:
         response_json = request_to_gpt.json()
-        JsonService.write_file_json("output/output_gpt.json", response_json, False)
-
         response = response_json["choices"][0]["message"]["content"]
+        
+        # JsonService.write_file_json("output/output_gpt.json", response, False)
+
         return response
     else:
-        print(f"Lỗi HTTP: {request_to_gpt.status_code}")
         print("Nội dung phản hồi:", request_to_gpt.text)
         return None
