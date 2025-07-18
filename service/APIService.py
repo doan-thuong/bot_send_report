@@ -6,6 +6,7 @@ import pytz
 from dateutil import parser
 
 
+# lấy data từ api trả về để chuyển thành json mong muốn
 def get_json_data(json_data):
     try:
         author = json_data["author"]
@@ -35,6 +36,7 @@ def get_json_data(json_data):
     
     return None
 
+# lấy tên của kênh dựa trên id
 def get_name_channel(id_channel, headers):
     url = f"https://discord.com/api/v10/channels/{id_channel}"
     response_channel = requests.get(url, headers=headers)
@@ -48,6 +50,7 @@ def get_name_channel(id_channel, headers):
 
     return channel_name
 
+# kiểm tra type của kênh dựa trên id
 def check_data_channel(channel_id, headers):
     url = f"https://discord.com/api/v9/channels/{channel_id}"
     response = requests.get(url, headers=headers)
@@ -68,6 +71,7 @@ def check_data_channel(channel_id, headers):
         "name" : None
     }
 
+# lấy data từ kênh có type là forum (bài đăng)
 def get_data_to_forum_channel(channel_id, headers):
     list_id = []
 
@@ -93,6 +97,7 @@ def get_data_to_forum_channel(channel_id, headers):
 
     return list_id
 
+# lấy nội dung trong ngày
 def get_messages_in_day(channel_id, headers, isSpecial = False):
     utc_now = datetime.now(pytz.utc)
     start_of_day = utc_now.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -138,6 +143,7 @@ def process_channel_data(channel_id, headers, isSpecial = False):
         "data_channel": messages
     }
 
+# tổng hợp data của các kênh dựa trên id thành 1 list
 def handle_data_channel(list_channel_id, headers, isSpecial = False):
     data = []
     for channel_id in list_channel_id:
@@ -146,6 +152,7 @@ def handle_data_channel(list_channel_id, headers, isSpecial = False):
             data.append(channel_data)
     return data
 
+# xử lý kiểu kênh để ra list id kênh cần lấy data
 def handle_channel_id(check_type, channel_id, headers):
     list_channel_id = []
     
@@ -162,6 +169,7 @@ def handle_channel_id(check_type, channel_id, headers):
     
     return list_channel_id
 
+# xử lý data kênh để lưu vào file json
 def retrieve_messages(channel_id, isSpecial = False):
     bot_token = KeyHandling.read_file_key("security/bot.key")
     
