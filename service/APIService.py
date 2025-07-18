@@ -103,13 +103,16 @@ def get_messages_in_day(channel_id, headers, isSpecial = False):
     start_of_day = utc_now.replace(hour=0, minute=0, second=0, microsecond=0)
     end_of_day = start_of_day + timedelta(days=1)
     
-    if isSpecial:
-        if utc_now.weekday() != 0:
-            return None
+    # if isSpecial:
+    #     if utc_now.weekday() != 0:
+    #         return None
 
     url = f"https://discord.com/api/v10/channels/{channel_id}/messages"
     response = requests.get(url, headers=headers)
     
+    if isSpecial:
+        url = url + "?limit=1"
+
     if response.status_code != 200:
         print(f"Lỗi khi lấy tin nhắn từ kênh {channel_id}: {response.status_code}, {response.text}")
         return None
@@ -128,13 +131,45 @@ def get_messages_in_day(channel_id, headers, isSpecial = False):
     
     return filtered_messages
 
+# lấy nội dung trong tuần
+def get_messages_in_week(channel_id, headers, isSpecial = False):
+    utc_now = datetime.now(pytz.utc)
+    start_of_week = utc_now - timedelta(days=7)
+    start_of_week = start_of_week.replace(hour=0, minute=0, second=0, microsecond=0)
+    end_of_week = utc_now
+
+    url = f"https://discord.com/api/v10/channels/{channel_id}/messages"
+    response = requests.get(url, headers=headers)
+
+    if isSpecial:
+        url = url + "?limit=1"
+
+    if response.status_code != 200:
+        print(f"Lỗi khi lấy tin nhắn từ kênh {channel_id}: {response.status_code}, {response.text}")
+        return None
+    
+    messages = response.json()
+    filtered_messages = []
+    
+    for msg in messages:
+        msg_time = parser.isoparse(msg['timestamp'])
+        if start_of_week <= msg_time < end_of_week:
+            get_data_json = get_json_data(msg)
+            if get_data_json:
+                filtered_messages.append(get_data_json)
+        elif msg_time < start_of_week:
+            break
+    
+    return filtered_messages
+
+# tổng hợp tên kênh và data trong kênh thành json
 def process_channel_data(channel_id, headers, isSpecial = False):
     name_channel = get_name_channel(channel_id, headers)
     if not name_channel:
         print(f"Không thể lấy tên kênh cho ID {channel_id}")
         return None
     
-    messages = get_messages_in_day(channel_id, headers, isSpecial)
+    messages = get_messages_in_week(channel_id, headers, isSpecial)
     if messages is None or not messages:
         return None
     
@@ -201,6 +236,7 @@ def retrieve_messages(channel_id, isSpecial = False):
         }
     
     if data or (not data and not isSpecial):
+        print("Data fetched from channel: " + name_channel)
         file_path = f"output_channel/{name_channel}.json"
         HandlingJson.write_file_json(file_path, data, False)
 
