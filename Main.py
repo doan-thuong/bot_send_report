@@ -33,7 +33,7 @@ def send_discord_message(recipient):
     if response.status_code in [200, 204]:
         print(f"Sent message to {recipient}")
     else:
-        print(f"Failed to send message to {recipient}, status: {response.status_code}")
+        input(f"Failed to send message to {recipient}, status: {response.status_code}")
 
 print("Running...")
 send_discord_message(getRecipients)
