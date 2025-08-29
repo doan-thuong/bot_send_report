@@ -15,6 +15,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from cryptography.fernet import Fernet
+from google.oauth2.service_account import Credentials
 
 
 LINK_HEAD = "E:/project/security/"
@@ -55,8 +56,9 @@ def send_noti(content_mail):
 
 def get_data_from_gg_sheet(id_sheet, name_tab_sheet):
   config = HandlingJson.read_json("config/config-mail.json")
-  scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-  creds = ServiceAccountCredentials.from_json_keyfile_name(LINK_HEAD + "config/key-gg-config.json", scope)
+  scope: list[str] = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+  # creds = ServiceAccountCredentials.from_json_keyfile_name(LINK_HEAD + "config/key-gg-config.json", scope)
+  creds = Credentials.from_service_account_file(LINK_HEAD + "config/key-gg-config.json", scopes=scope)
   client = gspread.authorize(creds)
 
   spreadsheet = client.open_by_key(id_sheet)
